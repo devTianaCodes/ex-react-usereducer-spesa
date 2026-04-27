@@ -1,68 +1,95 @@
-import { useState } from "react";
+import { useReducer } from "react";
 
-export default function App() {
-  
-  const products = [
-    { name: "Apple", price: 0.5 },
-    { name: "Bread", price: 1.2 },
-    { name: "Milk", price: 1.0 }, 
-    { name: "Pasta", price: 0.7 },
-  ];
+const products = [
+  { name: "Apple", price: 0.5 },
+  { name: "Bread", price: 1.2 },
+  { name: "Milk", price: 1.0 },
+  { name: "Pasta", price: 0.7 },
+];
 
-  const[addedProducts, setAddedProducts] = useState([]);
-  console.log(addedProducts);
-
-  const addToCart = product => {
-    const isProductAlreadyAdded = addedProducts.some(
-      addedProduct => addedProduct.name === product.name
-    );
-
-    if (isProductAlreadyAdded) {
-      setAddedProducts(curr =>
-        curr.map(addedProduct =>
-          addedProduct.name === product.name
-            ? { ...addedProduct, quantity: addedProduct.quantity + 1 }
-            : addedProduct
-        )
+function cartReducer(state, action) {
+  switch (action.type) {
+    case "ADD_PRODUCT": {
+      const productInCart = state.find(
+        product => product.name === action.payload.name
       );
-      return;
+
+      if (productInCart) {
+        return state.map(product =>
+          product.name === action.payload.name
+            ? { ...product, quantity: product.quantity + 1 }
+            : product
+        );
+      }
+
+      return [...state, { ...action.payload, quantity: 1 }];
     }
 
-    setAddedProducts(curr => [
-      ...curr,
-      {
-        ...product,
-        quantity: 1
-      }
-    ]);
-  }
+    case "REMOVE_PRODUCT":
+      return state.filter(product => product.name !== action.payload.name);
 
-  return(
+    default:
+      return state;
+  }
+}
+
+export default function App() {
+  const [addedProducts, dispatch] = useReducer(cartReducer, []);
+
+  const total = addedProducts.reduce((acc, product) => {
+    return acc + product.price * product.quantity;
+  }, 0);
+
+
+
+
+  
+  return (
     <>
       <h1>Choose any product</h1>
 
       <ul>
-        {
-          products.map((product, index) =>(
-            <li key={index}>
-              <p>{product.name}  ({product.price.toFixed(2)})</p>
-              <button onClick={() => addToCart(product)}>Add to cart</button>
-            </li>
-          ))
-        }
+        {products.map((product, index) => (
+          <li key={index}>
+            <p>
+              {product.name} ({product.price.toFixed(2)})
+            </p>
+            <button
+              onClick={() =>
+                dispatch({ type: "ADD_PRODUCT", payload: product })
+              }
+            >
+              Add to cart
+            </button>
+          </li>
+        ))}
       </ul>
 
-      {addedProducts.length > 0 && (<>
-        <h1>Your cart</h1>
-        <ul>
-          {addedProducts.map((p,i) => (
-            <li key={i}>
-              <p>{p.quantity} * {p.name} ({p.price.toFixed(2) + "euro"})</p>
+      {addedProducts.length > 0 && (
+        <>
+          <h1>Your cart</h1>
 
-            </li>
-          ))}
-        </ul>
-      </>)}
+          <ul>
+            {addedProducts.map((product, index) => (
+              <li key={index}>
+                <p>
+                  {product.quantity} * {product.name} (
+                  {product.price.toFixed(2) + "euro"})
+                </p>
+                <button
+                  onClick={() =>
+                    dispatch({ type: "REMOVE_PRODUCT", payload: product })
+                  }
+                >
+                  Remove from cart
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          <h2>Total: {total.toFixed(2)} euro</h2>
+        </>
+      )}
     </>
-  )
+  );
 }
