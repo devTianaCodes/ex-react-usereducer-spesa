@@ -45,51 +45,77 @@ export default function App() {
 
   
   return (
-    <>
-      <h1>Choose any product</h1>
+    <main className="page">
+      <section className="card">
+        <p className="eyebrow">Mini Shop</p>
+        <h1>Choose any product</h1>
+        <p className="subtitle">
+          Add a few groceries to your cart with soft pastel vibes.
+        </p>
 
-      <ul>
-        {products.map((product, index) => (
-          <li key={index}>
-            <p>
-              {product.name} ({product.price.toFixed(2)})
-            </p>
-            <button
-              onClick={() =>
-                dispatch({ type: "ADD_PRODUCT", payload: product })
-              }
-            >
-              Add to cart
-            </button>
-          </li>
-        ))}
-      </ul>
+        <ul className="product-list">
+          {products.map((product, index) => (
+            <li key={index} className="product-item">
+              <div>
+                <p className="product-name">{product.name}</p>
+                <p className="product-price">{product.price.toFixed(2)} euro</p>
+              </div>
 
-      {addedProducts.length > 0 && (
-        <>
-          <h1>Your cart</h1>
+              <button
+                className="primary-button"
+                onClick={() =>
+                  dispatch({ type: "ADD_PRODUCT", payload: product })
+                }
+              >
+                Add to cart
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
 
-          <ul>
-            {addedProducts.map((product, index) => (
-              <li key={index}>
-                <p>
-                  {product.quantity} * {product.name} (
-                  {product.price.toFixed(2) + "euro"})
-                </p>
-                <button
-                  onClick={() =>
-                    dispatch({ type: "REMOVE_PRODUCT", payload: product })
-                  }
-                >
-                  Remove from cart
-                </button>
-              </li>
-            ))}
-          </ul>
+      <section className="card cart-card">
+        <div className="cart-header">
+          <div>
+            <p className="eyebrow">Shopping Cart</p>
+            <h2>Your cart</h2>
+          </div>
+          <span className="cart-count">{addedProducts.length} items</span>
+        </div>
 
-          <h2>Total: {total.toFixed(2)} euro</h2>
-        </>
-      )}
-    </>
+        {addedProducts.length > 0 ? (
+          <>
+            <ul className="cart-list">
+              {addedProducts.map((product, index) => (
+                <li key={index} className="cart-item">
+                  <div>
+                    <p className="product-name">{product.name}</p>
+                    <p className="product-price">
+                      {product.quantity} x {product.price.toFixed(2)} euro
+                    </p>
+                  </div>
+
+                  <button
+                    className="secondary-button"
+                    onClick={() =>
+                      dispatch({ type: "REMOVE_PRODUCT", payload: product })
+                    }
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            <div className="total-box">
+              <span>Total</span>
+              <strong>{total.toFixed(2)} euro</strong>
+            </div>
+          </>
+        ) : (
+          <p className="empty-cart">Your cart is still empty.</p>
+        )}
+      </section>
+    </main>
   );
 }
